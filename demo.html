@@ -3,12 +3,12 @@
 <button id="probe">Probe H264 decode</button>
 <pre id="out"></pre>
 <script type="module">
-  import { h264Samples, probeH264Decode } from './src/index.js';
+  import { h264Samples, probeH264DecodeDetailed } from './src/index.js';
 
   probe.onclick = async () => {
     out.textContent = 'probing...';
     try {
-      const result = await probeH264Decode(h264Samples);
+      const result = await probeH264DecodeDetailed(h264Samples);
       out.textContent = JSON.stringify(result, (key, value) => {
         if (key === 'data') return `<${value.byteLength} bytes>`;
         return value;

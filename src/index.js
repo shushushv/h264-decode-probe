@@ -23,6 +23,7 @@ export async function decodeH264Sample(sample, options = {}) {
   }
 
   let frameInfo;
+  let decodeError;
   const decoder = new VideoDecoder({
     output(frame) {
       frameInfo = {
@@ -33,20 +34,27 @@ export async function decodeH264Sample(sample, options = {}) {
       frame.close();
     },
     error(error) {
-      throw error;
+      decodeError = error;
     },
   });
 
-  decoder.configure(config);
-  decoder.decode(
-    new EncodedVideoChunk({
-      type: 'key',
-      timestamp: 0,
-      data: sample.data,
-    }),
-  );
-  await decoder.flush();
-  decoder.close();
+  try {
+    decoder.configure(config);
+    decoder.decode(
+      new EncodedVideoChunk({
+        type: 'key',
+        timestamp: 0,
+        data: sample.data,
+      }),
+    );
+    await decoder.flush();
+  } finally {
+    decoder.close();
+  }
+
+  if (decodeError) {
+    throw decodeError;
+  }
 
   return {
     supported: true,
@@ -69,4 +77,30 @@ export async function probeH264Decode(samples = h264Samples, options = {}) {
     }
   }
   return null;
+}
+
+export async function probeH264DecodeDetailed(samples = h264Samples, options = {}) {
+  const attempts = [];
+
+  for (const sample of samples) {
+    try {
+      const result = await decodeH264Sample(sample, options);
+      const attempt = { sample, result };
+      attempts.push(attempt);
+      if (result.decoded) {
+        return { decoded: true, match: attempt, attempts };
+      }
+    } catch (error) {
+      attempts.push({
+        sample,
+        error: {
+          name: error?.name || 'Error',
+          message: error?.message || String(error),
+        },
+      });
+      if (options.throwOnError) throw error;
+    }
+  }
+
+  return { decoded: false, match: null, attempts };
 }
