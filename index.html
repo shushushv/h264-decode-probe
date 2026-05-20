@@ -1,6 +1,36 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>H264 decode probe</title>
-<button id="probe">Probe H264 decode</button>
-<pre id="out">loading...</pre>
+<main>
+  <header>
+    <div>
+      <h1>H264 decode probe</h1>
+      <p>Runs real WebCodecs decode attempts against embedded H264 samples.</p>
+    </div>
+    <button id="probe">Probe</button>
+  </header>
+  <section class="summary">
+    <div id="status">loading...</div>
+    <div id="summary">Preparing sample table.</div>
+  </section>
+  <section class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Sample</th>
+          <th>Codec</th>
+          <th>Size</th>
+          <th>Status</th>
+          <th>Config</th>
+          <th>Decode</th>
+          <th>Output</th>
+          <th>Time</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody id="results"></tbody>
+    </table>
+  </section>
+</main>
 <script type="module" src="/src/main.js"></script>

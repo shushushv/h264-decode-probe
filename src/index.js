@@ -15,17 +15,26 @@ export async function decodeH264Sample(sample, options = {}) {
     optimizeForLatency: true,
   };
 
+  const startedAt = performance.now();
   if (VideoDecoder.isConfigSupported) {
     const support = await VideoDecoder.isConfigSupported(config);
     if (!support.supported) {
-      return { supported: false, decoded: false, config: support.config || config };
+      return {
+        supported: false,
+        decoded: false,
+        outputFrames: 0,
+        durationMs: performance.now() - startedAt,
+        config: support.config || config,
+      };
     }
   }
 
   let frameInfo;
   let decodeError;
+  let outputFrames = 0;
   const decoder = new VideoDecoder({
     output(frame) {
+      outputFrames += 1;
       frameInfo = {
         width: frame.codedWidth,
         height: frame.codedHeight,
@@ -59,6 +68,8 @@ export async function decodeH264Sample(sample, options = {}) {
   return {
     supported: true,
     decoded: Boolean(frameInfo),
+    outputFrames,
+    durationMs: performance.now() - startedAt,
     width: frameInfo?.width,
     height: frameInfo?.height,
     config,
@@ -81,15 +92,14 @@ export async function probeH264Decode(samples = h264Samples, options = {}) {
 
 export async function probeH264DecodeDetailed(samples = h264Samples, options = {}) {
   const attempts = [];
+  let match = null;
 
   for (const sample of samples) {
     try {
       const result = await decodeH264Sample(sample, options);
       const attempt = { sample, result };
       attempts.push(attempt);
-      if (result.decoded) {
-        return { decoded: true, match: attempt, attempts };
-      }
+      if (result.decoded && !match) match = attempt;
     } catch (error) {
       attempts.push({
         sample,
@@ -102,5 +112,5 @@ export async function probeH264DecodeDetailed(samples = h264Samples, options = {
     }
   }
 
-  return { decoded: false, match: null, attempts };
+  return { decoded: Boolean(match), match, attempts };
 }
