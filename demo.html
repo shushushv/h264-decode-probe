@@ -1,10 +1,14 @@
 <!doctype html>
 <meta charset="utf-8">
 <button id="probe">Probe H264 decode</button>
-<pre id="out"></pre>
+<pre id="out">loading...</pre>
 <script type="module">
   import { h264Samples, probeH264DecodeDetailed } from './src/index.js';
 
+  const probe = document.getElementById('probe');
+  const out = document.getElementById('out');
+
+  out.textContent = 'ready';
   probe.onclick = async () => {
     out.textContent = 'probing...';
     try {
