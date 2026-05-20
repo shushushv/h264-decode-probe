@@ -31,7 +31,12 @@ const rows = await Promise.all(
   })),
 );
 
-const output = `const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const output = `function b64(s) {
+  var bin = atob(s);
+  var data = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i += 1) data[i] = bin.charCodeAt(i);
+  return data;
+}
 
 export const h264Samples = [
 ${rows

@@ -9,12 +9,16 @@
     "./samples": "./src/sample-data.js"
   },
   "files": [
+    "dist",
     "src",
     "samples"
   ],
   "scripts": {
     "build:samples": "node scripts/embed-samples.mjs",
-    "check": "node --check src/index.js && node --check src/sample-data.js"
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "check": "node --check src/index.js && node --check src/sample-data.js && node --check src/main.js && vite build"
   },
   "keywords": [
     "h264",
@@ -22,5 +26,10 @@
     "probe",
     "avc"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@vitejs/plugin-legacy": "^7.2.1",
+    "terser": "^5.43.1",
+    "vite": "^7.2.7"
+  }
 }

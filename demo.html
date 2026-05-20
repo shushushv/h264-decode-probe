@@ -1,24 +1,5 @@
 <!doctype html>
 <meta charset="utf-8">
-<button id="probe">Probe H264 decode</button>
-<pre id="out">loading...</pre>
-<script type="module">
-  import { h264Samples, probeH264DecodeDetailed } from './src/index.js';
-
-  const probe = document.getElementById('probe');
-  const out = document.getElementById('out');
-
-  out.textContent = 'ready';
-  probe.onclick = async () => {
-    out.textContent = 'probing...';
-    try {
-      const result = await probeH264DecodeDetailed(h264Samples);
-      out.textContent = JSON.stringify(result, (key, value) => {
-        if (key === 'data') return `<${value.byteLength} bytes>`;
-        return value;
-      }, 2);
-    } catch (error) {
-      out.textContent = error.stack || String(error);
-    }
-  };
-</script>
+<meta http-equiv="refresh" content="0; url=./">
+<title>H264 decode probe</title>
+<a href="./">Open H264 decode probe</a>

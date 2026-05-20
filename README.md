@@ -24,13 +24,20 @@ The embedded samples are one-frame black H264 Annex B bitstreams:
 Run the demo:
 
 ```bash
-python3 -m http.server 8765
-open http://127.0.0.1:8765/demo.html
+pnpm install
+pnpm run dev
 ```
 
 Regenerate sample modules after changing `samples/*.h264`:
 
 ```bash
-npm run build:samples
-npm run check
+pnpm run build:samples
+pnpm run check
+```
+
+Production build:
+
+```bash
+pnpm run build
+pnpm run preview
 ```
