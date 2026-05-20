@@ -1,0 +1,26 @@
+{
+  "name": "h264-decode-probe",
+  "version": "0.1.0",
+  "description": "Tiny WebCodecs H264 decode probe with embedded real Annex B samples.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./samples": "./src/sample-data.js"
+  },
+  "files": [
+    "src",
+    "samples"
+  ],
+  "scripts": {
+    "build:samples": "node scripts/embed-samples.mjs",
+    "check": "node --check src/index.js && node --check src/sample-data.js"
+  },
+  "keywords": [
+    "h264",
+    "webcodecs",
+    "probe",
+    "avc"
+  ],
+  "license": "MIT"
+}
