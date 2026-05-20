@@ -114,3 +114,57 @@ export async function probeH264DecodeDetailed(samples = h264Samples, options = {
 
   return { decoded: Boolean(match), match, attempts };
 }
+
+export function createH264ProbeMatrix(samples = h264Samples, options = {}) {
+  const forcedCodec = options.forcedCodec || 'avc1.42e01f';
+  const hardwareModes = options.hardwareModes || ['prefer-hardware', 'prefer-software'];
+  const rows = [];
+
+  for (const sample of samples) {
+    const codecModes = [
+      { label: 'sample', codec: sample.codec },
+      { label: 'forced', codec: forcedCodec },
+    ];
+
+    for (const codecMode of codecModes) {
+      for (const hardwareAcceleration of hardwareModes) {
+        rows.push({
+          sample,
+          codecMode: codecMode.label,
+          codec: codecMode.codec,
+          hardwareAcceleration,
+        });
+      }
+    }
+  }
+
+  return rows;
+}
+
+export async function probeH264DecodeMatrix(matrix = createH264ProbeMatrix(), options = {}) {
+  const attempts = [];
+  let match = null;
+
+  for (const entry of matrix) {
+    try {
+      const result = await decodeH264Sample(entry.sample, {
+        codec: entry.codec,
+        hardwareAcceleration: entry.hardwareAcceleration,
+      });
+      const attempt = { ...entry, result };
+      attempts.push(attempt);
+      if (result.decoded && !match) match = attempt;
+    } catch (error) {
+      attempts.push({
+        ...entry,
+        error: {
+          name: error?.name || 'Error',
+          message: error?.message || String(error),
+        },
+      });
+      if (options.throwOnError) throw error;
+    }
+  }
+
+  return { decoded: Boolean(match), match, attempts };
+}

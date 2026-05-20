@@ -1,4 +1,4 @@
-import { h264Samples, probeH264DecodeDetailed } from './index.js';
+import { createH264ProbeMatrix, h264Samples, probeH264DecodeMatrix } from './index.js';
 import './styles.css';
 
 const probe = document.getElementById('probe');
@@ -35,7 +35,8 @@ function rowHtml(attempt) {
   return (
     '<tr>' +
     '<td><strong>' + sample.width + 'x' + sample.height + '</strong><span>' + sample.name + '</span></td>' +
-    '<td><code>' + sample.codec + '</code></td>' +
+    '<td><code>' + attempt.codec + '</code><span>' + attempt.codecMode + '</span></td>' +
+    '<td>' + attempt.hardwareAcceleration + '</td>' +
     '<td>' + formatBytes(sample.data && sample.data.byteLength) + '</td>' +
     '<td><span class="pill ' + label[0] + '">' + label[1] + '</span></td>' +
     '<td>' + (result.supported === undefined ? '-' : String(result.supported)) + '</td>' +
@@ -48,12 +49,14 @@ function rowHtml(attempt) {
 }
 
 function renderPending() {
-  tbody.innerHTML = h264Samples
-    .map(function renderSample(sample) {
+  tbody.innerHTML = createH264ProbeMatrix(h264Samples)
+    .map(function renderSample(entry) {
+      const sample = entry.sample;
       return (
         '<tr>' +
         '<td><strong>' + sample.width + 'x' + sample.height + '</strong><span>' + sample.name + '</span></td>' +
-        '<td><code>' + sample.codec + '</code></td>' +
+        '<td><code>' + entry.codec + '</code><span>' + entry.codecMode + '</span></td>' +
+        '<td>' + entry.hardwareAcceleration + '</td>' +
         '<td>' + formatBytes(sample.data.byteLength) + '</td>' +
         '<td><span class="pill idle">pending</span></td>' +
         '<td>-</td><td>-</td><td>-</td><td>-</td><td class="detail">Click Probe to run</td>' +
@@ -82,7 +85,7 @@ probe.onclick = async function onProbeClick() {
   summary.textContent = 'Running real H264 decode attempts.';
   probe.disabled = true;
   try {
-    renderResult(await probeH264DecodeDetailed(h264Samples));
+    renderResult(await probeH264DecodeMatrix(createH264ProbeMatrix(h264Samples)));
   } catch (error) {
     status.textContent = 'probe failed';
     summary.textContent = error && error.stack ? error.stack : String(error);
